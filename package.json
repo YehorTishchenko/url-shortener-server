@@ -2,8 +2,15 @@
   "name": "url-shortener-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/server.ts",
+  "engines": {
+    "node": ">=22.6.0"
+  },
   "scripts": {
+    "start": "node --env-file=.env src/server.ts",
+    "dev": "node --env-file=.env --watch src/server.ts",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -22,6 +29,7 @@
     "eslint": "^10.9.0",
     "globals": "^17.11.0",
     "jiti": "^2.7.0",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.67.0"
   }
 }
