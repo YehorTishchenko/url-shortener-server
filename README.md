@@ -11,7 +11,7 @@ cp .env.example .env   # then fill in REDIS_PASSWORD
 
 ## Run locally
 
-Requires a Redis instance reachable at `REDIS_URL` (see `.env.example`).
+Requires a Redis instance reachable at `REDIS_URL` and a Postgres instance reachable at `DATABASE_URL` (see `.env.example`).
 
 ```bash
 npm run dev     # node --watch, restarts on file changes
@@ -31,6 +31,15 @@ Compose reads `REDIS_PASSWORD`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTG
 ```bash
 npm run db:migrate
 ```
+
+## Testing
+
+```bash
+npm test         # vitest run, single pass
+npm run test:watch  # vitest, watch mode
+```
+
+Tests import `src/app.ts` (the Fastify instance + routes) and exercise it directly via Fastify's `.inject()` — no live server, Redis, or Postgres needed. `src/server.ts` is a thin wrapper around `app.ts` that adds the real process concerns (connecting to Redis/Postgres, `.listen()`, graceful shutdown) and is not imported by tests.
 
 ## Other scripts
 

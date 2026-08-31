@@ -1,43 +1,29 @@
-import Fastify from 'fastify';
+import { app } from './app.ts';
 import { config } from './config.ts';
 import { connectRedis, redisClient } from './redis/redis.ts';
 import { db, pgClient } from './db/client.ts';
 
-const fastify = Fastify({
-  logger: true
-});
-
-// Declare a route
-fastify.get('/', function (request, reply) {
-  reply.send({ hello: 'world' });
-});
-
-// Health check endpoint
-fastify.get('/health', async () => {
-  return { status: 'ok' };
-});
-
 async function start(): Promise<void> {
   await Promise.all([
-    connectRedis((err) => fastify.log.error(err, 'Redis connection error')),
+    connectRedis((err) => app.log.error(err, 'Redis connection error')),
     db.execute('select 1')
   ]);
-  fastify.log.info('Successfully connected to Redis and Postgres');
+  app.log.info('Successfully connected to Redis and Postgres');
 
-  await fastify.listen({ port: config.port, host: config.host });
+  await app.listen({ port: config.port, host: config.host });
 }
 
 start().catch((err) => {
-  fastify.log.error(err);
+  app.log.error(err);
   process.exit(1);
 });
 
 async function shutdown(signal: string): Promise<void> {
-  fastify.log.info(`Received ${signal}, shutting down`);
+  app.log.info(`Received ${signal}, shutting down`);
   try {
-    await fastify.close();
+    await app.close();
   } catch (err) {
-    fastify.log.error(err, 'Error closing Fastify');
+    app.log.error(err, 'Error closing Fastify');
   }
 
   const results = await Promise.allSettled([
@@ -49,7 +35,7 @@ async function shutdown(signal: string): Promise<void> {
   for (const result of results) {
     if (result.status === 'rejected') {
       failed = true;
-      fastify.log.error(result.reason);
+      app.log.error(result.reason);
     }
   }
 
