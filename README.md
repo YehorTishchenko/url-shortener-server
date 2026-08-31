@@ -24,11 +24,19 @@ npm start       # single run
 docker compose up --build
 ```
 
-Compose reads `REDIS_PASSWORD` from a root `.env` file — create one from `.env.example` first.
+Compose reads `REDIS_PASSWORD`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, and `POSTGRES_DB` from a root `.env` file — create one from `.env.example` first.
+
+`docker compose up` does **not** run database migrations automatically. After the `db` service is up, apply migrations from the host with:
+
+```bash
+npm run db:migrate
+```
 
 ## Other scripts
 
 ```bash
-npm run lint        # eslint
+npm run lint         # eslint
 npm run typecheck    # tsc --noEmit
+npm run db:generate  # generate a migration from schema.ts changes
+npm run db:migrate   # apply pending migrations
 ```
