@@ -40,11 +40,8 @@ app.post<{ Body: CreateUrlBody }>('/urls/create', {
       CREATE_URL_RATE_WINDOW_SECONDS
     );
 
-    console.log('1', rateLimit);
-
     if (!rateLimit.allowed) {
       reply.header('Retry-After', rateLimit.retryAfterSeconds);
-      console.log('2');
       return reply.code(429).send({ error: 'Too many requests' });
     }
   }
