@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --env-file=.env node_modules/.bin/vitest run",
     "test:watch": "node --env-file=.env node_modules/.bin/vitest",
+    "test:integration": "node --env-file=.env node_modules/.bin/vitest run --config vitest.integration.config.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate"
   },
@@ -31,6 +32,7 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@eslint/json": "^2.0.1",
+    "@testcontainers/postgresql": "^12.1.0",
     "@types/node": "^26.2.0",
     "drizzle-kit": "^1.0.0-rc.4",
     "eslint": "^10.9.0",

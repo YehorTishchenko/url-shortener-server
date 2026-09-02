@@ -16,4 +16,17 @@ describe('isUniqueViolation', () => {
     expect(isUniqueViolation('some string')).toBe(false);
     expect(isUniqueViolation(new Error('generic'))).toBe(false);
   });
+
+  it('recognizes a unique_violation wrapped in a DrizzleQueryError-style .cause chain', () => {
+    const rawPostgresError = { code: '23505' };
+    const wrapped = new Error('Failed query: ...', { cause: rawPostgresError });
+
+    expect(isUniqueViolation(wrapped)).toBe(true);
+  });
+
+  it('returns false when the .cause chain never reaches a matching code', () => {
+    const wrapped = new Error('Failed query: ...', { cause: new Error('connection reset') });
+
+    expect(isUniqueViolation(wrapped)).toBe(false);
+  });
 });
