@@ -3,6 +3,7 @@ import { db } from '../db/client.ts';
 import { urls } from '../db/schema.ts';
 import { createShortCode } from '../codes/create-short-code.ts';
 import { isUniqueViolation } from '../codes/is-unique-violation.ts';
+import { getCachedUrl, setCachedUrl } from './urls.cache.ts';
 
 export interface CreateUrlInput {
   original: string;
@@ -37,15 +38,27 @@ export class UrlLookupError extends Error {
 }
 
 export async function findUrlByCode(code: string): Promise<FindUrlByCodeResult | undefined> {
+  const cached = await getCachedUrl(code);
+  if (cached) {
+    return cached;
+  }
+
+  let row: FindUrlByCodeResult | undefined;
   try {
-    const [row] = await db
+    const rows = await db
       .select({ original: urls.original, expiresAt: urls.expiresAt })
       .from(urls)
       .where(eq(urls.code, code))
       .limit(1);
 
-    return row;
+    row = rows[0];
   } catch (err) {
     throw new UrlLookupError(code, err);
   }
+
+  if (row) {
+    await setCachedUrl(code, row);
+  }
+
+  return row;
 }
