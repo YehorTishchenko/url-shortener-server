@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import { createUrl, findUrlByCode } from './urls/urls.service.ts';
+import { checkRateLimit } from './rate-limit/rate-limiter.ts';
 
 export const app = Fastify({
   logger: true
@@ -8,6 +9,9 @@ export const app = Fastify({
 interface CreateUrlBody {
   original: string;
 }
+
+const CREATE_URL_RATE_LIMIT = 10;
+const CREATE_URL_RATE_WINDOW_SECONDS = 60;
 
 // Declare a route
 app.get('/', function (request, reply) {
@@ -27,6 +31,21 @@ app.post<{ Body: CreateUrlBody }>('/urls/create', {
       properties: {
         original: { type: 'string', minLength: 1 }
       }
+    }
+  },
+  preHandler: async function (request, reply) {
+    const rateLimit = await checkRateLimit(
+      `rate-limit:create-url:${request.ip}`,
+      CREATE_URL_RATE_LIMIT,
+      CREATE_URL_RATE_WINDOW_SECONDS
+    );
+
+    console.log('1', rateLimit);
+
+    if (!rateLimit.allowed) {
+      reply.header('Retry-After', rateLimit.retryAfterSeconds);
+      console.log('2');
+      return reply.code(429).send({ error: 'Too many requests' });
     }
   }
 }, async function (request, reply) {
