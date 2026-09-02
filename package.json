@@ -11,8 +11,8 @@
     "dev": "node --env-file=.env --watch src/server.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
+    "test": "node --env-file=.env node_modules/.bin/vitest run",
+    "test:watch": "node --env-file=.env node_modules/.bin/vitest",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate"
   },
